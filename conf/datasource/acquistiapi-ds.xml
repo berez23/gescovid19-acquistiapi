@@ -1,0 +1,22 @@
+<datasources>
+	<datasource jta="true" jndi-name="java:/jdbc/acquistiapi"
+		pool-name="acquistiapi" enabled="true" use-ccm="false">
+		<connection-url>jdbc:postgresql://@@database@@</connection-url>
+		<driver-class>org.postgresql.Driver</driver-class>
+		<driver>postgresql</driver>
+		<pool>
+			<min-pool-size>2</min-pool-size>
+			<max-pool-size>20</max-pool-size>
+			<prefill>true</prefill>
+			<flush-strategy>IdleConnections</flush-strategy>
+		</pool>
+		<security>
+			<user-name>@@dbuser@@</user-name>
+			<password>@@dbpassword@@</password>
+		</security>
+		<validation>
+			<valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"></valid-connection-checker>
+			<exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"></exception-sorter>
+		</validation>
+	</datasource>
+</datasources>

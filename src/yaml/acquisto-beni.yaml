@@ -1,0 +1,1215 @@
+swagger: '2.0'
+host: host
+basePath: /acquistiapi/restfacade/be
+schemes:
+  - https
+info:
+  title: "Gestione acquisto beni"
+  version: 1.4.1
+  description: |
+  
+    ## 1.4.1 (02 Mag 2020)
+    ---
+    * Modificato model `Ordine dettaglio cambio stato` per aggiungere `data_consegna` e `quantita_consegnata`
+  
+    ## 1.4.0 (30 Apr 2020)
+    ---
+    * Aggiunto endpoint `GET Dettaglio ordine`
+    * Aggiunto model `Ordine dettaglio`
+    * Aggiunto model `Ordine dettaglio cambio stato`
+  
+    ## 1.3.0 (29 Apr 2020)
+    ---
+    * Aggiunto endpoint `DELETE Elimina ordine`
+
+    ## 1.2.0 (28 Apr 2020)
+    ---
+    * Aggiunto endpoint `GET Lista strutture`
+    * Modificato model `Richiesta dettaglio` che ora contiene anche il campo `struttura`
+    * Modificato model `Richiesta dettaglio standalone` che ora contiene anche il campo `struttura`
+    * Modificato payload dell'endpoint `POST Nuova richiesta`. Ora ogni dettaglio può contenere l'id della struttura
+  
+    ## 1.1.1 (10 Apr 2020)
+    ---
+    * Aggiunto campo `quantita_distribuibile` nella POST `Nuova distribuzione`
+  
+    ## 1.1.0 (10 Apr 2020)
+    ---
+    * Aggiunto endpoint `GET Lista percentuali distribuzioni`
+    * Aggiunto endpoint `PUT Modifica percentuale distribuzione`
+    * Aggiunto endpoint `PUT Modifica quantita ordinata"
+    * Modificato model `Ente` per rimuovere campo `percentuale_distribuzione`
+    * Modificato model `Distribuzione` per aggiungere il campo `struttura`
+    * Modificato payload della `POST Nuova distribuzione` per aggiungere il campo `ente`
+  
+paths:
+  '/me':
+    get:
+      summary: Informazioni utente
+      description:  |
+        Restituisce le informazioni sull'utente loggato.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+      responses:
+        '200':
+          description: |
+            Operazione eseguita con successo
+          schema:
+            $ref: '#/definitions/model_utente'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+
+  '/prodotti':
+    get:
+      summary: Lista prodotti
+      description:  |
+        Restituisce la lista dei prodotti presenti sul DB.
+        Permette al front-end di popolare la tabella di richiesta dell'ASR nel caso in cui non esista
+        una richiesta preesistente settimanale.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+      responses:
+        '200':
+          description: |
+            Operazione eseguita con successo
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/model_prodotto'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+  '/strutture':
+    get:
+      summary: Lista strutture
+      description:  |
+        Restituisce l'elenco delle strutture peresenti sul DB.
+        
+        E' possibile filtrare le strutture per ente
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/query_ente'
+      responses:
+        '200':
+          description: |
+            Operazione eseguita con successo
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/model_struttura'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+        
+  '/richieste':
+    get:
+      summary: Lista richieste
+      description:  |
+        Restituisce la lista delle richieste presenti sul DB.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/query_ente'
+      responses:
+        '200':
+          description: |
+            Operazione eseguita con successo
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/model_richiesta'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+    post:
+      summary: Nuova richiesta
+      description:  |
+        Permette di inserire una nuova richiesta
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/payload_richiesta'
+      responses:
+        '201':
+          description: Restituisce la richiesta creata con i dati aggiornati
+          schema:
+            $ref: '#/definitions/model_richiesta'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+  '/richieste-dettagli':
+    get:
+      summary: Lista di dettagli delle richieste
+      description:  |
+        Restituisce la lista dei dettagli delle richieste presenti sul DB.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/query_ente'
+        - $ref: '#/parameters/query_stato'
+        - $ref: '#/parameters/query_richieste_ordinate'
+      responses:
+        '200':
+          description: |
+            Operazione eseguita con successo
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/model_richiesta_dettaglio_standalone'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+  '/richieste-dettagli/{dettaglio_id}':
+    put:
+      summary: Modifica dettaglio
+      description:  |
+        Permette di modificare una singola richiesta su un prodotto.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/path_dettaglio_id'
+        - $ref: '#/parameters/payload_richiesta_dettaglio_modifica'
+      responses:
+        '200':
+          description: Restituisce il dettaglio richiesta aggiornato
+          schema:
+            $ref: '#/definitions/model_richiesta_dettaglio_standalone'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+          
+  '/ordini':
+    get:
+      summary: Lista ordini
+      description:  |
+        Restituisce la lista degli ordini presenti sul DB.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/query_ordine_stato'
+      responses:
+        '200':
+          description: |
+            Operazione eseguita con successo
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/model_ordine'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+    post:
+      summary: Nuovo ordine
+      description:  |
+        Permette di creare un nuovo ordine.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/payload_ordine_creazione'
+      responses:
+        '201':
+          description: Restituisce l'ordine creato con i dati aggiornati
+          schema:
+            $ref: '#/definitions/model_ordine'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+  '/ordini/{ordine_id}':
+    get:
+      summary: Dettaglio ordine
+      description:  |
+        Permette di ottenre il dettaglio di un ordine.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/path_ordine_id'
+      responses:
+        '200':
+          description: Restituisce l'ordine con i dati aggiornati
+          schema:
+            $ref: '#/definitions/model_ordine_dettaglio'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+    put:
+      summary: Modifica ordine
+      description:  |
+        Permette di modificare un ordine.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/path_ordine_id'
+        - $ref: '#/parameters/payload_ordine_modifica'
+      responses:
+        '200':
+          description: Restituisce l'ordine con i dati aggiornati
+          schema:
+            $ref: '#/definitions/model_ordine'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+    delete:
+      summary: Elimina ordine
+      description:  |
+        Permette di rimuovere un ordine
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/path_ordine_id'
+      responses:
+        '200':
+          description: Restituisce l'ordine con i dati aggiornati
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+  '/ordini/{ordine_id}/quantita-ordinata':
+    put:
+      summary: Modifica quantita ordinata
+      description:  |
+        Restituisce la lista degli ordini presenti sul DB.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/path_ordine_id'
+        - $ref: '#/parameters/payload_ordine_quantita_ordinata_modifica'
+      responses:
+        '200':
+          description: Restituisce l'ordine con tutti i dati aggiornati
+          schema:
+            $ref: '#/definitions/model_ordine'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+
+  '/magazzino':
+    get:
+      summary: Magazzino dettaglio
+      description:  |
+        Restituisce Il dettaglio del magazzino
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+      responses:
+        '200':
+          description: Restituisce il dettaglio del magazzino
+          schema:
+            $ref: '#/definitions/model_magazzino_dettaglio'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+  '/magazzino/prodotti/{prodotto_codice}':
+    put:
+      summary: Modifica prodotto in magazzino
+      description:  |
+        Permette di modificare un prodotto in magazzino
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/path_prodotto_codice'
+        - $ref: '#/parameters/payload_magazzino_prodotto_modifica'
+      responses:
+        '200':
+          description: Restituisce il dettaglio del prodotto aggiornato
+          schema:
+            $ref: '#/definitions/model_magazzino_dettaglio_prodotto'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+          
+  '/distribuzioni':
+    get:
+      summary: Lista distribuzione
+      description:  |
+        Restituisce la lista delle distribuzioni presenti sul DB.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/query_ente'
+        - $ref: '#/parameters/query_distribuzione_in_corso'
+      responses:
+        '200':
+          description: |
+            Operazione eseguita con successo
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/model_distribuzione'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+    post:
+      summary: Nuova distribuzione
+      description:  |
+        Permette di inserire una nuova distribuzione.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/payload_distribuzione_creazione'
+      responses:
+        '201':
+          description: Restituisce la distribuzione creata con i dati aggiornati
+          schema:
+            $ref: '#/definitions/model_distribuzione'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+  '/distribuzioni-percentuali':
+    get:
+      summary: Lista percentuali distribuzione
+      description:  |
+        Restituisce la lista delle percentuali distribuzione gestite dal sistema.
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+      responses:
+        '200':
+          description: |
+            Operazione eseguita con successo
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/model_distribuzione_percentuale'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'        
+  '/distribuzioni-percentuali/{percentuale_id}/percentuale-distribuzione':
+    put:
+      summary: Modifica percentuale distribuzione
+      description:  |
+        Modifica la percentuale di distribuzione
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/header_x_rupar_id'
+        - $ref: '#/parameters/header_x_application_id'
+        - $ref: '#/parameters/header_x_request_id'
+        - $ref: '#/parameters/path_distribuzione_percentuale_id'
+        - $ref: '#/parameters/payload_distribuzioni_percentuale_modifica'
+      responses:
+        '200':
+          description: Restituisce i nuovi valori salvati sul DB
+          schema:
+            $ref: '#/definitions/model_distribuzione_percentuale'
+        '400':
+          $ref: '#/responses/BadRequest'
+        '403':
+          $ref: '#/responses/Forbidden'
+        '500':
+          $ref: '#/responses/InternalServerError'
+parameters:
+  header_x_rupar_id:
+    in: header
+    name: Shib-Identita-CodiceFiscale
+    description: Contiene il cf dell'utente loggato
+    type: string
+    required: true
+  header_x_application_id:
+    in: header
+    name: X-Applicazione-Codice
+    description: Contiene il codice dell'applicazione chiamante
+    type: string
+    required: true
+  header_x_request_id:
+    in: header
+    name: X-Request-Id
+    description: Contiene un identificativo univoco (UUID v4)
+    type: string
+    required: true
+  path_dettaglio_id:
+    in: path
+    name: dettaglio_id
+    type: string
+    required: true
+    description: L'id del dettaglio richiesta
+  path_ordine_id:
+    in: path
+    name: ordine_id
+    type: integer
+    required: true
+    description: L'id dell'ordine
+  path_prodotto_codice:
+    in: path
+    name: prodotto_codice
+    type: string
+    required: true
+    description: Il codice del prodotto
+  path_magazzino_id:
+    in: path
+    name: magazzino_id
+    type: string
+    required: true
+    description: L'id del magazzino
+  path_distribuzione_percentuale_id:
+    in: path
+    name: percentuale_id
+    type: string
+    required: true
+    description: L'id della percentuale
+  query_ente:
+    in: query
+    name: ente
+    type: string
+    required: false
+    description: L'id dell'ente per cui filtrare
+  query_stato:
+    in: query
+    name: stato
+    type: string
+    required: false
+    description: Permette di ottenere solo le richieste con un certo stato
+  query_richieste_ordinate:
+    in: query
+    name: ordinati
+    type: boolean
+    required: false
+    description: |
+      Se impostato a true restituisce solo i dettagli richiesta che hanno un ordine associato
+      Se impostato a false restituisce solo i dettagli richiesta che NON hanno un ordine associato
+      Se non impostato non applica ulteriori filtri sui dettagli richiesta
+  query_ordine_stato:
+    in: query
+    name: stato
+    type: string
+    required: false
+    description: Permette di ottenere solo gli ordini con un certo stato
+  query_distribuzione_in_corso:
+    in: query
+    name: in_corso
+    type: boolean
+    required: false
+    description: Permette di ottenere solo le distribuzioni in corso o quelle non in corso
+  payload_richiesta:
+    in: body
+    name: payload
+    required: true
+    schema:
+      type: object
+      properties:
+        note:
+          type: string
+          description: Le note inserite dall'ente
+        ente:
+          type: string
+          description: l'id dell'ente
+        dettagli:
+          type: array
+          items:
+            type: object
+            properties:
+              dotazione_attuale:
+                type: integer
+                description: il numero di pezzi attuali a disposizione dell'ente
+              fabbisogno_giornaliero:
+                type: integer
+                description: il numero di pezzi necessari giornalmente all'ente
+              fabbisogno_settimanale:
+                type: integer
+                description: il numero di pezzi necessari settimanalmente all'ente
+              quantita:
+                type: integer
+                description: il numero di pezzi richiesti dall'ente
+              prodotto:
+                type: string
+                description: Il codice del prodotto
+              struttura:
+                type: string
+                description: L'id della struttura. Se null significa che la richiesta è per l'ente
+  payload_richiesta_dettaglio_modifica:
+    in: body
+    name: payload
+    required: true
+    schema:
+      type: object
+      properties:
+        dotazione_attuale:
+          type: integer
+          description: il numero di pezzi attuali a disposizione dell'ente
+        fabbisogno_giornaliero:
+          type: integer
+          description: il numero di pezzi necessari giornalmente all'ente
+        fabbisogno_settimanale:
+          type: integer
+          description: il numero di pezzi necessari settimanalmente all'ente
+        quantita:
+          type: integer
+          description: il numero di pezzi richiesti dall'ente
+        prodotto:
+          type: string
+          description: Il codice del prodotto
+        stato:
+          type: string
+          description: il codice dello stato
+        ordine:
+          type: integer
+          description: L'id dell'ordine
+  payload_ordine_creazione:
+    in: body
+    name: payload
+    required: true
+    schema:
+      type: object
+      properties:
+        identificativo_ordine:
+          type: string
+          description: L'identificativo dell'ordine inserito dall'utente
+        quantita_ordinata:
+          type: integer
+          description: il numero di pezzi ordinati dall'utente
+        data_consegna_prevista:
+          type: string
+          format: date
+          description: La data di consegna prevista
+        data_ordine:
+          type: string
+          format: date
+          description: La data in cui è stato effettuato l'ordine. Inserito dall'utente
+        prodotto:
+          type: string
+          description: Il codice del prodotto
+        richiesta_dettagli:
+          type: array
+          items:
+            type: string
+            description: Id del dettaglio richiesta
+  payload_ordine_modifica:
+    in: body
+    name: payload
+    required: true
+    schema:
+      type: object
+      properties:
+        identificativo_ordine:
+          type: string
+          description: L'identificativo dell'ordine inserito dall'utente
+        quantita_ordinata:
+          type: integer
+          description: il numero di pezzi ordinati dall'utente
+        data_consegna_prevista:
+          type: string
+          format: date
+          description: La data di consegna prevista
+        quantita_consegnata:
+          type: integer
+          description: il numero di pezzi effettivamente consegnati
+        data_consegna:
+          type: string
+          format: date
+          description: La data di consegna effettiva
+        data_ordine:
+          type: string
+          format: date
+          description: La data in cui è stato effettuato l'ordine. Inserito dall'utente
+        stato:
+          type: string
+          description: Il codice dello stato
+        prodotto:
+          type: string
+          description: Il codice del prodotto
+  payload_ordine_quantita_ordinata_modifica:
+    in: body
+    name: payload
+    required: true
+    schema:
+      type: object
+      properties:
+        quantita_ordinata:
+          type: integer
+          description: il nuovo numero di pezzi ordinati dall'utente
+  payload_magazzino_prodotto_modifica:
+    in: body
+    name: payload
+    required: true
+    schema:
+      type: object
+      properties:
+        quantita_disponibile:
+          type: integer
+          description: La quantita disponibile in magazzino
+        quantita_distribuita: 
+          type: integer
+          description: La quantità distributa agli enti
+  payload_distribuzione_creazione:
+    in: body
+    name: payload
+    required: true
+    schema:
+      type: object
+      properties:
+        quantita:
+          type: integer
+          description: Il numero di pezzi distribuiti
+        data_consegna:
+          type: string
+          format: date
+          description: La data di consegna prevista
+        quantita_distribuibile:
+          type: integer
+          description: La quantita distribuibile inserita dall'utente
+        ente:
+          type: string
+          description: L'id dell'ente
+        struttura:
+          type: string
+          description: L'id della struttura
+        prodotto:
+          type: string
+          description: Il codice del prodotto
+  payload_distribuzioni_percentuale_modifica:
+    in: body
+    name: payload
+    required: true
+    schema:
+      type: object
+      properties:
+        percentuale_distribuzione:
+          type: number
+          description: la nuova percentuale di distribuzione
+responses:
+  BadRequest:
+    description: >-
+      La richiesta fatta dal client è errata. Ad esempio non sono stati passati
+      tutti i campi obbligatori, uno dei campi è di un tipo non valido,
+      formattazione dei filtri errata ecc.
+    schema:
+      $ref: '#/definitions/errore'
+  Forbidden:
+    description: >-
+      L'utente non ha i permessi necessari per visualizzare queste risorse. <br>
+      Ad esempio un utente che sta provando ad ottenere le ricette di un altro
+      utente senza averne la delega.
+    schema:
+      $ref: '#/definitions/errore'
+  NotFound:
+    description: >-
+      La risorsa cercata non è stata trovata. <br> Questo errore viene
+      restituito quando si prova ad accedere alla singola risorsa e questa non
+      esiste. <br> Nel caso in cui si prova ad ottenere una lista e non ci sono
+      elementi, restituire 200 con un array vuoto
+    schema:
+      $ref: '#/definitions/errore'
+  InternalServerError:
+    description: >-
+      Si è verificato un'errore interno del server. (es. null pointer exception,
+      connessione al DB saltata ecc)
+    schema:
+      $ref: '#/definitions/errore'
+definitions:
+  model_ente:
+    title: 'Ente'
+    description: Rappresenta un ente
+    type: object
+    properties:
+      id:
+        type: string
+        description: Un codice univoco
+      nome:
+        type: string
+        description: Una nome testuale da mostrare sulla UI
+  model_struttura:
+    title: 'Struttura'
+    description: Rappresenta una struttura
+    type: object
+    properties:
+      id:
+        type: string
+        description: Un codice univoco
+      nome:
+        type: string
+        description: Una nome testuale da mostrare sulla UI
+      natura:
+        type: string
+        description: La natura della struttura
+      ente_id:
+        type: string
+        description: L'id dell'ente a cui appartiene la struttura
+  model_distribuzione_percentuale:
+    title: 'Percentuale distribuzione'
+    description: Rappresenta le percentuali di distribuzioni su ente e/o struttura
+    properties:
+      id:
+        type: string
+        description: Un codice univoco
+      percentuale_distribuzione:
+        type: number
+        description: la percentuale di distribuzione sull'asr
+      data_modifica:
+        type: string
+        format: date-time
+        description: La data dell'ultima modifica
+      ente:
+        $ref: '#/definitions/model_ente'
+      struttura:
+        $ref: '#/definitions/model_struttura'
+  model_utente:
+    title: 'Utente'
+    description: |
+      Rappresenta un utente
+    type: object
+    properties:
+      cf:
+        type: string
+        description: Il codice fiscale dell'utente
+      ente:
+        $ref: '#/definitions/model_ente'
+  model_prodotto:
+    title: 'Prodotto'
+    description: Rappresenta il prodotto
+    type: object
+    properties:
+      codice:
+        type: string
+        description: Un codice univoco
+      nome:
+        type: string
+        description: Una nome testuale da mostrare sulla UI
+      descrizione:
+        type: string
+        description: La descrizione del prodotto
+  model_richiesta_dettaglio_stato:
+    title: 'Richiesta dettaglio stato'
+    description: Rappresenta lo stato di una richiesta su un prodotto
+    type: object
+    properties:
+      codice:
+        type: string
+        description: Un codice univoco
+      descrizione:
+        type: string
+        description: Descrizione dello stato
+  model_richiesta_dettaglio:
+    title: 'Richiesta dettaglio'
+    description: Rappresenta una richiesta su un prodotto
+    type: object
+    properties:
+      id:
+        type: string
+        description: Un codice univoco
+      dotazione_attuale:
+        type: integer
+        description: il numero di pezzi attuali a disposizione dell'ente
+      fabbisogno_giornaliero:
+        type: integer
+        description: il numero di pezzi necessari giornalmente all'ente
+      fabbisogno_settimanale:
+        type: integer
+        description: il numero di pezzi necessari settimanalmente all'ente
+      quantita:
+        type: integer
+        description: il numero di pezzi richiesti dall'ente
+      data_creazione:
+        type: string
+        format: date
+        description: La data di creazione
+      data_modifica:
+        type: string
+        format: date
+        description: La data di creazione
+      stato:
+        $ref: '#/definitions/model_richiesta_dettaglio_stato'
+      prodotto:
+        $ref: '#/definitions/model_prodotto'
+      ordine:
+        $ref: '#/definitions/model_ordine'
+      struttura:
+        $ref: '#/definitions/model_struttura'
+  model_richiesta:
+    title: 'Richiesta'
+    description: Rappresenta una richiesta su uno o più prodotti
+    type: object
+    properties:
+      id:
+        type: string
+        description: Un codice univoco
+      data_richiesta:
+        type: string
+        format: date
+        description: La data di inserimento nel sistema della richiesta
+      data_periodo_da:
+        type: string
+        format: date
+      data_periodo_a:
+        type: string
+        format: date
+      note:
+        type: string
+        description: Le note inserite dall'ente
+      ente:
+        $ref: '#/definitions/model_ente'
+      dettagli:
+        type: array
+        items:
+          $ref: '#/definitions/model_richiesta_dettaglio'
+  model_richiesta_dettaglio_standalone:
+    title: 'Richiesta dettaglio standalone'
+    description: Rappresenta una richiesta su un prodotto
+    type: object
+    properties:
+      id:
+        type: string
+        description: Un codice univoco
+      dotazione_attuale:
+        type: integer
+        description: il numero di pezzi attuali a disposizione dell'ente
+      fabbisogno_giornaliero:
+        type: integer
+        description: il numero di pezzi necessari giornalmente all'ente
+      fabbisogno_settimanale:
+        type: integer
+        description: il numero di pezzi necessari settimanalmente all'ente
+      quantita:
+        type: integer
+        description: il numero di pezzi richiesti dall'ente
+      data_creazione:
+        type: string
+        format: date
+        description: La data di creazione
+      data_modifica:
+        type: string
+        format: date
+        description: La data di creazione
+      stato:
+        $ref: '#/definitions/model_richiesta_dettaglio_stato'
+      prodotto:
+        $ref: '#/definitions/model_prodotto'
+      ordine:
+        $ref: '#/definitions/model_ordine'
+      ente:
+        $ref: '#/definitions/model_ente'
+      struttura:
+        $ref: '#/definitions/model_struttura'
+      richiesta:
+        type: string
+        description: Id della richiesta
+      data_richiesta:
+        type: string
+        format: date
+        description: La data della richiesta
+  model_ordine_stato:
+    title: 'Ordine stato'
+    description: Rappresenta lo stato di un ordine
+    type: object
+    properties:
+      codice:
+        type: string
+        description: Un codice univoco
+      descrizione:
+        type: string
+        description: La descrizione dello stato
+  model_ordine:
+    title: 'Ordine'
+    description: Rappresenta l'acquisto di un prodotto
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Un codice univoco
+      identificativo_ordine:
+        type: string
+        description: L'identificativo dell'ordine inserito dall'utente
+      quantita_ordinata:
+        type: integer
+        description: il numero di pezzi ordinati dall'utente
+      data_consegna_prevista:
+        type: string
+        format: date
+        description: La data di consegna prevista
+      quantita_consegnata:
+        type: integer
+        description: il numero di pezzi effettivamente consegnati
+      data_consegna:
+        type: string
+        format: date
+        description: La data di consegna effettiva
+      data_ordine:
+        type: string
+        format: date
+        description: La data in cui è stato effettuato l'ordine. Inserito dall'utente
+      data_creazione:
+        type: string
+        format: date
+        description: La data di creazione del record nella tabella
+      stato:
+        $ref: '#/definitions/model_ordine_stato'
+      prodotto:
+        $ref: '#/definitions/model_prodotto'
+  model_ordine_dettaglio_cambio_stato:
+    title: 'Ordine dettaglio cambio stato'
+    description: Rappresenta il dettaglio di un ordine
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Un codice univoco
+      ordine_id:
+        type: integer
+        description: Id dell'ordine
+      data:
+        type: string
+        format: date-time
+        description: La datetime in cui è avvenuto il cambio di stato
+      data_consegna:
+        type: string
+        format: date
+        description: La datetime in cui è avvenuta la consegna
+      quantita_consegnata:
+        type: integer
+        description: La quantità di merce consegnata
+      stato:
+        $ref: '#/definitions/model_ordine_stato'
+  model_ordine_dettaglio:
+    title: 'Ordine dettaglio'
+    description: Rappresenta il dettaglio di un ordine
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Un codice univoco
+      identificativo_ordine:
+        type: string
+        description: L'identificativo dell'ordine inserito dall'utente
+      quantita_ordinata:
+        type: integer
+        description: il numero di pezzi ordinati dall'utente
+      data_consegna_prevista:
+        type: string
+        format: date
+        description: La data di consegna prevista
+      quantita_consegnata:
+        type: integer
+        description: il numero di pezzi effettivamente consegnati
+      data_consegna:
+        type: string
+        format: date
+        description: La data di consegna effettiva
+      data_ordine:
+        type: string
+        format: date
+        description: La data in cui è stato effettuato l'ordine. Inserito dall'utente
+      data_creazione:
+        type: string
+        format: date
+        description: La data di creazione del record nella tabella
+      stato:
+        $ref: '#/definitions/model_ordine_stato'
+      prodotto:
+        $ref: '#/definitions/model_prodotto'
+      cronologia:
+        type: array
+        items:
+          $ref: '#/definitions/model_ordine_dettaglio_cambio_stato'
+  model_magazzino:
+    title: 'Magazzino'
+    description: Rappresenta un magazzino
+    type: object
+    properties:
+      id:
+        type: string
+        description: L'id del magazzino
+      nome:
+        type: string
+        description: Il nome del magazzino
+      comune:
+        type: string
+        description: Il codice del comune
+      indirizzo:
+        type: string
+        description: L'indirizzo del magazzino
+  model_magazzino_dettaglio_prodotto:
+    title: 'Prodotti nel magazzino'
+    description: Rappresenta un magazzino
+    type: object
+    properties:
+      codice:
+        type: string
+        description: Un codice univoco
+      nome:
+        type: string
+        description: Una nome testuale da mostrare sulla UI
+      descrizione:
+        type: string
+        description: La descrizione del prodotto
+      quantita_disponibile:
+        type: integer
+        description: La quantita disponibile in magazzino
+      quantita_distribuita: 
+        type: integer
+        description: La quantità distributa agli enti
+      quantita_ricevuta: 
+        type: integer
+        description: La quantità ricevuta dai fornitori
+  model_magazzino_dettaglio:
+    title: 'Magazzino dettaglio'
+    description: Rappresenta un magazzino
+    type: object
+    properties:
+      id:
+        type: string
+        description: L'id del magazzino
+      nome:
+        type: string
+        description: Il nome del magazzino
+      comune:
+        type: string
+        description: Il codice del comune
+      indirizzo:
+        type: string
+        description: L'indirizzo del magazzino
+      prodotti:
+        type: array
+        items:
+          $ref: '#/definitions/model_magazzino_dettaglio_prodotto'
+  model_distribuzione:
+    title: 'Distribuzione'
+    description: Rappresenta una distribuzione
+    type: object
+    properties:
+      id:
+        type: string
+        description: L'id del magazzino
+      quantita:
+        type: integer
+        description: Il numero di pezzi distribuiti
+      data_consegna:
+        type: string
+        format: date
+        description: La data di consegna prevista
+      data_registrazione:
+        type: string
+        format: date
+        description: La data in cui è stata presa in carico la consegna
+      data_creazione:
+        type: string
+        format: date
+        description: La data in cui è stato inserito il record sul DB
+      data_modifica:
+        type: string
+        format: date
+        description: La data dell'ultima modifica
+      ente:
+        $ref: '#/definitions/model_ente'
+      struttura:
+        $ref: '#/definitions/model_struttura'
+      prodotto:
+        $ref: '#/definitions/model_prodotto'
+      magazzino:
+        $ref: '#/definitions/model_magazzino'
+  errore:
+    title: '[ERRORE] Generico'
+    type: object
+    properties:
+      codice:
+        type: string
+      descrizione:
+        type: string

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="lib/activation-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/aopalliance-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/asm-3.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/cglib-2.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-2.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/csi-apachesoap-1.4.6.jar"/>
+	<classpathentry kind="lib" path="lib/csi-core-1.4.6.jar"/>
+	<classpathentry kind="lib" path="lib/csi-ejb-1.4.6.jar"/>
+	<classpathentry kind="lib" path="lib/csi-rmi-1.4.6.jar"/>
+	<classpathentry kind="lib" path="lib/csi-stadapter-1.4.6.jar"/>
+	<classpathentry kind="lib" path="lib/ejb-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/iridev2-pep-intf-2.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/jaas-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-asl-1.9.9.redhat-4.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.9.redhat-4.jar"/>
+	<classpathentry kind="lib" path="lib/jaxp-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jettison-1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/jms-1.0.2b.jar"/>
+	<classpathentry kind="lib" path="lib/jndi-1.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar" sourcepath="C:/Users/2048/AppData/Local/Temp/.org.sf.feeling.decompiler1585549309349/source/jsr311-api-1.1.1-sources-1585586884452.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="lib/mail-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/resteasy-jaxrs-2.3.10.Final-redhat-1.jar"/>
+	<classpathentry kind="lib" path="lib/resteasy-multipart-provider-2.3.10.Final-redhat-1.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/soap-2.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/spring-aop-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-asm-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-beans-3.1.1.RELEASE.jar" sourcepath="C:/Users/2048/AppData/Local/Temp/.org.sf.feeling.decompiler1585485401977/source/spring-beans-3.1.1.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="lib/spring-context-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-core-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-expression-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-jdbc-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-tx-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/spring-web-3.1.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/swagger-annotations-1.5.18.jar"/>
+	<classpathentry kind="lib" path="lib/swagger-jaxrs-1.5.18.jar"/>
+	<classpathentry kind="lib" path="lib/util-perf-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/validation-api-1.0.0.GA-redhat-3.jar"/>
+	<classpathentry kind="lib" path="lib/weblogic-client-3.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/xerces-1.4.4.jar"/>
+	<classpathentry kind="lib" path="lib-ext/postgresql-42.2.6.jar"/>
+	<classpathentry kind="lib" path="lib-ext/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="lib-ext/commons-lang3-3.9.jar" sourcepath="C:/Users/2048/AppData/Local/Temp/.org.sf.feeling.decompiler1585549309349/source/commons-lang3-3.9-sources-1585570647534.jar"/>
+	<classpathentry kind="lib" path="lib-ext/commons-pool-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib-ext/commons-text-1.8.jar"/>
+	<classpathentry kind="lib" path="lib-ext/mybatis-3.3.0.jar"/>
+	<classpathentry kind="lib" path="lib-ext/mybatis-spring-1.2.2.jar"/>
+	<classpathentry kind="lib" path="lib-ext/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-beanutils-1.9.1.jar" sourcepath="C:/Users/2048/AppData/Local/Temp/.org.sf.feeling.decompiler1585983496562/source/commons-beanutils-1.9.1-sources.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
